@@ -3,6 +3,8 @@
 # Usage:
 #   bash main.sh <MARKDOWN_FILE_NAME>
 
+TEMPLATE_HTML_PATH="template.html"
+
 function print_usage() {
     echo "======== Usage ========"
     echo "bash main.sh <MARKDOWN_FILE_NAME>"
@@ -20,6 +22,21 @@ function print_error_and_usage_and_exit() {
     echo ""
     print_usage
     exit 1
+}
+
+# ===== Feature =====
+# $1 is title
+function init_output_html() {
+    cp "$TEMPLATE_HTML_PATH" "$h1.html"
+}
+# $1 is title
+function end_output_html() {
+    echo "</body>" >> "$h1.html"
+    echo "</html>" >> "$h1.html"
+}
+# usage: create_tag_one_block tag_name content
+function create_tag_one_block() {
+    echo "<$1>$2</$1>" >> "$h1.html"
 }
 
 # Check for proper usage
@@ -49,16 +66,24 @@ do
             # need check file existance??
             h1=`echo $line | sed "s/^#* //g"`
             # Create output html file.
-            touch "${h1}.html"
+            init_output_html
+            create_tag_one_block "h1" "$h1"
             ;;
         2)
             h2=`echo $line | sed "s/^#* //g"`
+            create_tag_one_block "h2" "$h2"
             ;;
         3)
             h3=`echo $line | sed "s/^#* //g"`
+            create_tag_one_block "h3" "$h3"
             ;;
         *)
             h4_or_more=`echo $line | sed "s/^#* //g"`
+            echo "<p style='font-weight:bold'>$h4_or_more</p>" >> "$h1.html"
             ;;
     esac
 done < $1
+
+if [ -n "$h1" ]; then
+    end_output_html
+fi
