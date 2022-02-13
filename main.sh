@@ -1,5 +1,8 @@
 #!/bin/bash -eu
 #
+# Description
+#   Parse md file and create a html file.
+#
 # Usage:
 #   bash main.sh <MARKDOWN_FILE_NAME>
 
@@ -45,12 +48,43 @@ if [ ! -f "$1" ]; then
 fi
 
 found_title=false
+is_in_code_block=false
+
 line_count=0
 while read line
 do
     line_count=$(($line_count + 1))
 
-    # ===== h-tag =====
+    # ========== code block ==========
+    ## === Check if the line is related to a code block ===
+    is_quotes_line=false
+    if [[ "$line" =~ ^\`\`\`.* ]]; then
+        is_quotes_line=true
+        # ...  FIXME ...
+        # toggle boolean:
+        if "$is_in_code_block"; then
+            is_in_code_block=false
+        else
+            is_in_code_block=true
+        fi
+    fi
+    ## === Output ===
+    if "$is_quotes_line"; then
+        if "$is_in_code_block"; then
+            # start code block
+            echo -n '<pre class="code-block"><code>' >> "$h1.html"
+        else
+            # end code block
+            echo "</pre></code>" >> "$h1.html"
+        fi
+    elif "${is_in_code_block}"; then
+        echo $line >> "$h1.html"
+    fi
+    if "$is_quotes_line" || "$is_in_code_block"; then
+        continue
+    fi
+
+    # ========== h-tag ==========
     is_h_line=true
     h_tag_num=$((`echo "$line" | sed -r "s/^(#*) .*/\1/g" | sed "s/^[^#].*//g" | wc -c` - 1))
     case "$h_tag_num" in
@@ -82,6 +116,11 @@ do
             echo "<p style='font-weight:bold'>$h4_or_more</p>" >> "$h1.html"
             ;;
     esac
+    if "$is_h_line"; then
+        continue
+    fi
+
+
 done < $1
 
 if [ -n "$h1" ]; then
