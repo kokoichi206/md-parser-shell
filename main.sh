@@ -49,6 +49,8 @@ fi
 
 found_title=false
 is_in_code_block=false
+is_in_bullets=false
+bullets_type="ul"
 
 line_count=0
 while read line
@@ -120,9 +122,45 @@ do
         continue
     fi
 
+    if [[ "$line" =~ ^"- ".* ]]; then
+        if "$is_in_bullets"; then
+            # already bullets are started
+            create_tag_one_block "li" `echo $line | sed "s/^- //g"`
+        else
+            # start new bullets
+            bullets_type=ul
+            echo "<$bullets_type>" >> "$h1.html"
+            create_tag_one_block "li" `echo $line | sed "s/^- //g"`
+            is_in_bullets=true
+        fi
+    elif [[ "$line" =~ ^[0-9]+." ".* ]]; then
+        if "$is_in_bullets"; then
+            # already bullets are started
+            create_tag_one_block "li" `echo $line | sed -E "s/^[0-9]+. //g"`
+        else
+            # start new bullets
+            bullets_type=ol
+            echo "<$bullets_type>" >> "$h1.html"
+            create_tag_one_block "li" `echo $line | sed -E "s/^[0-9]+. //g"`
+            is_in_bullets=true
+        fi
+    fi
+    # when the line is empty
+    if [ -z "$line" ]; then
+        if "$is_in_bullets"; then
+            # close bullets
+            echo "</$bullets_type>" >> "$h1.html"
+            is_in_bullets=false
+        fi
+    fi
 
 done < $1
 
+# post-processing
 if [ -n "$h1" ]; then
+    if "$is_in_bullets"; then
+        # close bullets
+        echo "</$bullets_type>" >> "$h1.html"
+    fi
     end_output_html
 fi
