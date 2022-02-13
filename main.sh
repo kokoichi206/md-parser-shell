@@ -29,9 +29,9 @@ for i in "$@"; do
     esac
 done
 
-TEMPLATE_HTML_PATH="template.html"
+TEMPLATE_HTML_PATH="templates/template.html"
 if "$is_slide"; then
-    TEMPLATE_HTML_PATH="template_slide.html"
+    TEMPLATE_HTML_PATH="templates/template_slide.html"
 fi
 OUTPUT_PATH=""
 PROGRAM=`basename $0`
