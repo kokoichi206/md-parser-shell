@@ -122,7 +122,11 @@ do
         continue
     fi
 
-    if [[ "$line" =~ ^"- ".* ]]; then
+    if [[ "$line" =~ ^"- [ ] ".* ]]; then
+        echo '<input type="checkbox" id="test" />' >> "$h1.html"
+        item=`echo $line | sed "s/^- \[ \] //g"`
+        echo "<label for='test'>${item}</label><br />" >> "$h1.html"
+    elif [[ "$line" =~ ^"- ".* ]]; then
         if "$is_in_bullets"; then
             # already bullets are started
             create_tag_one_block "li" `echo $line | sed "s/^- //g"`
