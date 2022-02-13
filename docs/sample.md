@@ -23,17 +23,18 @@ What kind of features do we want?
 ### SubSubTitle 2-1
 brabra
 
-### SubSubTitle 2-2
 - kotlin
 - python
 - go
 
-#### Ranking
+## SubTitle 2-2
+
+### Ranking
 1. kotlin
 2. python
 3. go
 
-### TDOO
+## Routine
 - [ ] Wake up
 - [ ] Take a shower
 - [ ] Die (Work)

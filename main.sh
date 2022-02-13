@@ -6,12 +6,48 @@
 # Usage:
 #   bash main.sh <MARKDOWN_FILE_NAME>
 
-TEMPLATE_HTML_PATH="template.html"
+is_slide=false
+for i in "$@"; do
+    case $i in
+    -h | --help | -help)
+        usage_and_exit 0
+        ;;
+    -s | --slide)
+        is_slide=true
+        shift 1
+        ;;
+    -*)
+        echo "Unknown option $1"
+        usage_and_exit 1
+        ;;
+    *)
+        if [[ ! -z "$1" ]] && [[ -f "$1" ]]; then
+            FILE="$1"
+            shift 1
+        fi
+        ;;
+    esac
+done
+
+TEMPLATE_HTML_PATH="templates/template.html"
+if "$is_slide"; then
+    TEMPLATE_HTML_PATH="templates/template_slide.html"
+fi
+OUTPUT_PATH=""
+PROGRAM=`basename $0`
 
 function print_usage() {
-    echo "======== Usage ========"
-    echo "bash main.sh <MARKDOWN_FILE_NAME>"
-    echo ""
+    echo "Usage: $PROGRAM [OPTION] FILE"
+    echo "  -h, --help, -help"
+    echo "      print manual"
+    echo "  -s, --slide"
+    echo "      make slide file"
+}
+
+usage_and_exit()
+{
+    print_usage
+    exit $1
 }
 
 function print_error() {
@@ -30,27 +66,77 @@ function print_error_and_usage_and_exit() {
 # ===== Feature =====
 # $1 is title
 function init_output_html() {
-    cp "$TEMPLATE_HTML_PATH" "$h1.html"
-}
-# $1 is title
-function end_output_html() {
-    echo "</body>" >> "$h1.html"
-    echo "</html>" >> "$h1.html"
+    cp "$TEMPLATE_HTML_PATH" "$OUTPUT_PATH"
 }
 # usage: create_tag_one_block tag_name content
 function create_tag_one_block() {
-    echo "<$1>$2</$1>" >> "$h1.html"
+    echo "<$1>$2</$1>" >> "$OUTPUT_PATH"
+}
+function init_slide_one_page() {
+    start_container $1
+    # left arrow
+    if [[ "$1" != 1 ]]; then
+        create_left_arrow $1
+    fi
+    create_right_arrow $1
+    start_content
+}
+function start_container() {
+    if [[ "$1" == 1 ]]; then
+        echo "<div class='container' id=$1>" >> "$OUTPUT_PATH"
+    else
+        echo "<div class='container hidden' id=$1>" >> "$OUTPUT_PATH"
+    fi
+}
+function create_left_arrow() {
+    echo "<div class='left-arrow' onclick='previous_page($1)'>" >> "$OUTPUT_PATH"
+    echo '<div class="hovicon effect-4 sub-b">' >> "$OUTPUT_PATH"
+    echo '&lt;' >> "$OUTPUT_PATH"
+    echo '</div>' >> "$OUTPUT_PATH"
+    echo '</div>' >> "$OUTPUT_PATH"
+}
+function create_right_arrow() {
+    echo "<div class='right-arrow' onclick='next_page($1)'>" >> "$OUTPUT_PATH"
+    echo '<div class="hovicon effect-4 sub-b">' >> "$OUTPUT_PATH"
+    echo '&gt;' >> "$OUTPUT_PATH"
+    echo '</div>' >> "$OUTPUT_PATH"
+    echo '</div>' >> "$OUTPUT_PATH"
+}
+function start_content() {
+    echo '<div class="content">' >> "$OUTPUT_PATH"
+}
+
+function close_slide_one_page() {
+    echo '</div>' >> "$OUTPUT_PATH"
+    echo '</div>' >> "$OUTPUT_PATH"
+}
+function create_closing_slide() {
+    start_container $(($slide_num + 1))
+    # only left arrow
+    create_left_arrow $(($slide_num + 1))
+    start_content
+    create_tag_one_block "h1" "Thank you!"
+    close_slide_one_page
+}
+function end_output_html() {
+    if "$is_slide"; then
+        close_slide_one_page
+        create_closing_slide
+    fi
+    echo "</body>" >> "$OUTPUT_PATH"
+    echo "</html>" >> "$OUTPUT_PATH"
 }
 
 # Check for proper usage
-if [ ! -f "$1" ]; then
-    print_error_and_usage_and_exit "File $1 doesn't exists"
+if [ ! -f "$FILE" ]; then
+    print_error_and_usage_and_exit "File $FILE doesn't exists"
 fi
 
 found_title=false
 is_in_code_block=false
 is_in_bullets=false
 bullets_type="ul"
+slide_num=0
 
 line_count=0
 while read line
@@ -74,13 +160,13 @@ do
     if "$is_quotes_line"; then
         if "$is_in_code_block"; then
             # start code block
-            echo -n '<pre class="code-block"><code>' >> "$h1.html"
+            echo -n '<pre class="code-block"><code>' >> "$OUTPUT_PATH"
         else
             # end code block
-            echo "</pre></code>" >> "$h1.html"
+            echo "</pre></code>" >> "$OUTPUT_PATH"
         fi
     elif "${is_in_code_block}"; then
-        echo $line >> "$h1.html"
+        echo $line >> "$OUTPUT_PATH"
     fi
     if "$is_quotes_line" || "$is_in_code_block"; then
         continue
@@ -101,12 +187,26 @@ do
             fi
             # need check file existance??
             h1=`echo $line | sed "s/^#* //g"`
+            if "$is_slide"; then
+                OUTPUT_PATH="${h1}_slide.html"
+            else
+                OUTPUT_PATH="$h1.html"
+            fi
             # Create output html file.
             init_output_html
+            slide_num=$(($slide_num + 1))
+            if "$is_slide"; then
+                init_slide_one_page "$slide_num"
+            fi
             create_tag_one_block "h1" "$h1"
             ;;
         2)
             h2=`echo $line | sed "s/^#* //g"`
+            slide_num=$(($slide_num + 1))
+            if "$is_slide"; then
+                close_slide_one_page
+                init_slide_one_page $slide_num 
+            fi
             create_tag_one_block "h2" "$h2"
             ;;
         3)
@@ -115,7 +215,7 @@ do
             ;;
         *)
             h4_or_more=`echo $line | sed "s/^#* //g"`
-            echo "<p style='font-weight:bold'>$h4_or_more</p>" >> "$h1.html"
+            echo "<p style='font-weight:bold'>$h4_or_more</p>" >> "$OUTPUT_PATH"
             ;;
     esac
     if "$is_h_line"; then
@@ -123,9 +223,16 @@ do
     fi
 
     if [[ "$line" =~ ^"- [ ] ".* ]]; then
-        echo '<input type="checkbox" id="test" />' >> "$h1.html"
+        # CheckBox
+        if "$is_slide"; then
+            echo '<div class="checkbox">' >> "$OUTPUT_PATH"
+        fi    
+        echo '<input type="checkbox" id="test" />' >> "$OUTPUT_PATH"
         item=`echo $line | sed "s/^- \[ \] //g"`
-        echo "<label for='test'>${item}</label><br />" >> "$h1.html"
+        echo "<label for='test'>${item}</label><br />" >> "$OUTPUT_PATH"
+        if "$is_slide"; then
+            echo "</div>" >> "$OUTPUT_PATH"
+        fi
     elif [[ "$line" =~ ^"- ".* ]]; then
         if "$is_in_bullets"; then
             # already bullets are started
@@ -133,7 +240,7 @@ do
         else
             # start new bullets
             bullets_type=ul
-            echo "<$bullets_type>" >> "$h1.html"
+            echo "<$bullets_type>" >> "$OUTPUT_PATH"
             create_tag_one_block "li" `echo $line | sed "s/^- //g"`
             is_in_bullets=true
         fi
@@ -144,7 +251,7 @@ do
         else
             # start new bullets
             bullets_type=ol
-            echo "<$bullets_type>" >> "$h1.html"
+            echo "<$bullets_type>" >> "$OUTPUT_PATH"
             create_tag_one_block "li" `echo $line | sed -E "s/^[0-9]+. //g"`
             is_in_bullets=true
         fi
@@ -153,18 +260,17 @@ do
     if [ -z "$line" ]; then
         if "$is_in_bullets"; then
             # close bullets
-            echo "</$bullets_type>" >> "$h1.html"
+            echo "</$bullets_type>" >> "$OUTPUT_PATH"
             is_in_bullets=false
         fi
     fi
-
-done < $1
+done < $FILE
 
 # post-processing
 if [ -n "$h1" ]; then
     if "$is_in_bullets"; then
         # close bullets
-        echo "</$bullets_type>" >> "$h1.html"
+        echo "</$bullets_type>" >> "$OUTPUT_PATH"
     fi
     end_output_html
 fi
