@@ -6,17 +6,48 @@
 # Usage:
 #   bash main.sh <MARKDOWN_FILE_NAME>
 
-is_slide=true
+is_slide=false
+for i in "$@"; do
+    case $i in
+    -h | --help | -help)
+        usage_and_exit 0
+        ;;
+    -s | --slide)
+        is_slide=true
+        shift 1
+        ;;
+    -*)
+        echo "Unknown option $1"
+        usage_and_exit 1
+        ;;
+    *)
+        if [[ ! -z "$1" ]] && [[ -f "$1" ]]; then
+            FILE="$1"
+            shift 1
+        fi
+        ;;
+    esac
+done
+
 TEMPLATE_HTML_PATH="template.html"
 if "$is_slide"; then
     TEMPLATE_HTML_PATH="template_slide.html"
 fi
 OUTPUT_PATH=""
+PROGRAM=`basename $0`
 
 function print_usage() {
-    echo "======== Usage ========"
-    echo "bash main.sh <MARKDOWN_FILE_NAME>"
-    echo ""
+    echo "Usage: $PROGRAM [OPTION] FILE"
+    echo "  -h, --help, -help"
+    echo "      print manual"
+    echo "  -s, --slide"
+    echo "      make slide file"
+}
+
+usage_and_exit()
+{
+    print_usage
+    exit $1
 }
 
 function print_error() {
@@ -97,8 +128,8 @@ function end_output_html() {
 }
 
 # Check for proper usage
-if [ ! -f "$1" ]; then
-    print_error_and_usage_and_exit "File $1 doesn't exists"
+if [ ! -f "$FILE" ]; then
+    print_error_and_usage_and_exit "File $FILE doesn't exists"
 fi
 
 found_title=false
@@ -233,8 +264,7 @@ do
             is_in_bullets=false
         fi
     fi
-
-done < $1
+done < $FILE
 
 # post-processing
 if [ -n "$h1" ]; then
