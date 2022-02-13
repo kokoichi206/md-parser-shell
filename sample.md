@@ -32,3 +32,8 @@ brabra
 1. kotlin
 2. python
 3. go
+
+### TDOO
+- [ ] Wake up
+- [ ] Take a shower
+- [ ] Die (Work)
