@@ -7,6 +7,10 @@
     <title>Title</title>
 
     <script>
+        // Slide aspect ratio
+        const RATIO_VER = 3;
+        const RATIO_HOR = 4;
+
         function previous_page(id) {
             toggle_hidden(id);
             if (id - 1 >= 1) {
@@ -15,12 +19,27 @@
         }
         function next_page(id) {
             toggle_hidden(id);
-            // TODO: check id+1 is in...
             toggle_hidden(id+1);
         }
         function toggle_hidden(id) {
-            document.getElementById(id).classList.toggle("hidden")
+            document.getElementById(id).classList.toggle("hidden");
+            document.getElementById(id).classList.toggle("show");
         }
+        // Resize the slide size according to the aspect ratio
+        function resizeWindow(){
+            const windowWidth = document.documentElement.clientWidth;
+            const windowHeight = document.documentElement.clientHeight;
+            const elm = document.getElementsByClassName("show")[0];
+            if (windowHeight > RATIO_VER * windowWidth / RATIO_HOR) {
+                elm.style.width = windowWidth + "px";
+                elm.style.height = RATIO_VER*windowWidth/RATIO_HOR + "px";
+            } else {
+                elm.style.width = RATIO_HOR*windowHeight/RATIO_VER + "px";
+                elm.style.height = windowHeight + "px";
+            }
+        }
+        // CHECK: Is this too busy?
+        window.addEventListener("resize", resizeWindow);
     </script>
     <style>
         * {
@@ -78,13 +97,13 @@
 
         .checkbox {
             font-size: 2rem;
-            width: 40vw;
+            width: 40%;
         }
 
         .content {
             position: relative;
             width: fit-content;
-            height: 100vh;
+            height: 100%;
             margin: auto;
             display: flex;
             flex-direction: column;
@@ -92,16 +111,14 @@
             align-items: center;
         }
         .container {
+            width: 100vw;
+            height: calc(3*100vw/4);
             position: absolute;
             top: 0;
-            margin-top: 2vh;
-            margin-bottom: 2vh;
-            margin-left: 2vw;
-            margin-right: 2vw;
-            width: 96vw;
-            height: 96vh;
-
-            /* background-color: blue; */
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
         }
         .hidden {
             visibility: hidden;
@@ -237,20 +254,20 @@
         .left-arrow {
             width: fit-content;
             position: absolute;
-            top: 45vh;
+            top: 45%;
             left: 0vw;
         }
         .right-arrow {
             width: fit-content;
             position: absolute;
-            top: 45vh;
+            top: 45%;
             right: 0vw;
         }
     </style>
 </head>
-<body>
+<body onload="resizeWindow()">
     <div id="outer-container">
-        <div class="container" id=1>
+        <div class="container show" id=1>
             <div class="content">
                 <h1>Title</h1>
             </div>
