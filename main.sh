@@ -126,6 +126,7 @@ function end_output_html() {
     if "$is_slide"; then
         close_slide_one_page
         create_closing_slide
+        echo "</div>" >> "$OUTPUT_PATH"
     fi
     echo "</body>" >> "$OUTPUT_PATH"
     echo "</html>" >> "$OUTPUT_PATH"
