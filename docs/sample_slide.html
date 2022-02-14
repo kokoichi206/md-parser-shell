@@ -27,15 +27,17 @@
         }
         // Resize the slide size according to the aspect ratio
         function resizeWindow(){
-            const windowWidth = document.documentElement.clientWidth;
-            const windowHeight = document.documentElement.clientHeight;
-            const elm = document.getElementsByClassName("show")[0];
-            if (windowHeight > RATIO_VER * windowWidth / RATIO_HOR) {
-                elm.style.width = windowWidth + "px";
-                elm.style.height = RATIO_VER*windowWidth/RATIO_HOR + "px";
-            } else {
-                elm.style.width = RATIO_HOR*windowHeight/RATIO_VER + "px";
-                elm.style.height = windowHeight + "px";
+            const windowWidth = window.outerWidth;
+            const windowHeight = window.outerHeight;
+            const elms = document.getElementsByClassName("container");
+            for (const elm in elms) {
+                if (windowHeight > RATIO_VER * windowWidth / RATIO_HOR) {
+                    elm.style.width = windowWidth + "px";
+                    elm.style.height = RATIO_VER*windowWidth/RATIO_HOR + "px";
+                } else {
+                    elm.style.width = RATIO_HOR*windowHeight/RATIO_VER + "px";
+                    elm.style.height = windowHeight + "px";
+                }
             }
         }
         // CHECK: Is this too busy?
@@ -53,26 +55,47 @@
             overflow: hidden;
         }
 
+        /* Default Font Size */
+        html {
+            font-size: 18px;
+        }
+        /* For small divices */
+        @media screen and (max-width: 1200px) {
+            html {
+                font-size: 12px;
+            }
+        }
+        @media screen and (max-width: 768px) {
+            html {
+                font-size: 9px;
+            }
+        }
+        @media screen and (max-width: 480px) {
+            html {
+                font-size: 8px;
+            }
+        }
+        /* Font Info */
         h1 {
             font-size: 5rem;
-            margin-top: 2rem;
+            margin-top: 1.5rem;
             width: fit-content;
         }
         h2 {
             font-size: 4rem;
-            margin-top: 2rem;
+            margin-top: 1.5rem;
             margin-bottom: 0.5rem;
             width: 50vw;
         }
         h3 {
             font-size: 3rem;
-            margin-top: 1.2rem;
+            margin-top: 1.0rem;
             margin-bottom: 0.4rem;
             width: 50vw;
         }
         h4 {
             font-size: 2rem;
-            margin-top: 1.2rem;
+            margin-top: 0.8rem;
             margin-bottom: 0.4rem;
             width: 48vw;
         }
@@ -80,11 +103,10 @@
             font-size: 2rem;
             width: 45vw;
         }
-
         pre {
             font-size: 1.4rem;
             margin: 0.5rem;
-            padding: 1rem;
+            padding: 0.5rem;
             background-color: #cccccc;
         }
         ul, ol {
@@ -94,10 +116,9 @@
             font-size: 2rem;
             width: 45vw;
         }
-
         .checkbox {
             font-size: 2rem;
-            width: 40%;
+            width: 45vw;
         }
 
         .content {
@@ -234,6 +255,10 @@
             right: 3%;
         }
     </style>
+    <!-- <script>
+        // BEFORE Loading
+        resizeWindow();
+    </script> -->
 </head>
 <body onload="resizeWindow()">
     <div id="outer-container">
@@ -259,7 +284,7 @@
 x=3
 y=6
 echo $(($x+$y))</code></pre>
-            <h3>SubSubTitle 11111111111111</h3>
+            <h3>SubSubTitle 1</h3>
             <p>brabra</p>
             <h3>SubSubTitle 2</h3>
             <h4>h4 example</h4>
