@@ -1,7 +1,7 @@
 # md-parser-shell
 markdown parser by shell scripts.
 
-Output formats are normal html or slide type html.
+Output formats are normal html or slide(4:3 aspect ratio) type html.
 
 ## Output samples
 You can check output samples [here](https://kokoichi206.github.io/md-parser-shell/).

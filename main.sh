@@ -6,7 +6,26 @@
 # Usage:
 #   bash main.sh <MARKDOWN_FILE_NAME>
 
+PROGRAM=`basename $0`
+
+# ===== print usage =====
+function print_usage() {
+    echo "Usage: $PROGRAM [OPTION] FILE"
+    echo "  -h, --help, -help"
+    echo "      print manual"
+    echo "  -s, --slide"
+    echo "      make slide file"
+}
+usage_and_exit()
+{
+    print_usage
+    exit $1
+}
+
 is_slide=false
+# ======================
+# parse arguments (options)
+# ======================
 for i in "$@"; do
     case $i in
     -h | --help | -help)
@@ -33,29 +52,15 @@ TEMPLATE_HTML_PATH="templates/template.html"
 if "$is_slide"; then
     TEMPLATE_HTML_PATH="templates/template_slide.html"
 fi
-OUTPUT_PATH=""
-PROGRAM=`basename $0`
+# this is re-set when find h1-tag is found.
+OUTPUT_PATH="output.html"
 
-function print_usage() {
-    echo "Usage: $PROGRAM [OPTION] FILE"
-    echo "  -h, --help, -help"
-    echo "      print manual"
-    echo "  -s, --slide"
-    echo "      make slide file"
-}
-
-usage_and_exit()
-{
-    print_usage
-    exit $1
-}
-
+# ===== print error =====
 function print_error() {
     ERROR='\033[1;31m'
     NORMAL='\033[0m'
     echo -e "${ERROR}ERROR${NORMAL}: $1"    
 }
-
 function print_error_and_usage_and_exit() {
     print_error "$1"
     echo ""
@@ -64,7 +69,6 @@ function print_error_and_usage_and_exit() {
 }
 
 # ===== Feature =====
-# $1 is title
 function init_output_html() {
     cp "$TEMPLATE_HTML_PATH" "$OUTPUT_PATH"
 }
@@ -122,12 +126,15 @@ function end_output_html() {
     if "$is_slide"; then
         close_slide_one_page
         create_closing_slide
+        echo "</div>" >> "$OUTPUT_PATH"
     fi
     echo "</body>" >> "$OUTPUT_PATH"
     echo "</html>" >> "$OUTPUT_PATH"
 }
 
+# ======================
 # Check for proper usage
+# ======================
 if [ ! -f "$FILE" ]; then
     print_error_and_usage_and_exit "File $FILE doesn't exists"
 fi
@@ -138,6 +145,9 @@ is_in_bullets=false
 bullets_type="ul"
 slide_num=0
 
+# ======================
+# parse markdown file
+# ======================
 line_count=0
 while read line
 do
@@ -222,6 +232,7 @@ do
         continue
     fi
 
+    # ========== bullet points ==========
     if [[ "$line" =~ ^"- [ ] ".* ]]; then
         # CheckBox
         if "$is_slide"; then
@@ -266,7 +277,9 @@ do
     fi
 done < $FILE
 
+# ======================
 # post-processing
+# ======================
 if [ -n "$h1" ]; then
     if "$is_in_bullets"; then
         # close bullets
