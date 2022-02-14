@@ -27,10 +27,11 @@
             padding: 0;
             margin: 0;
         }
-        body {
+        #outer-container {
             position: relative;
             width: 100vw;
             height: 100vh;
+            overflow: hidden;
         }
 
         h1 {
@@ -248,131 +249,133 @@
     </style>
 </head>
 <body>
-    <div class="container" id=1>
-        <div class="content">
-            <h1>Title</h1>
-        </div>
-        <div class="right-arrow" onclick="next_page(1)">
-            <div class="hovicon effect-4 sub-b">
-                &gt;
+    <div id="outer-container">
+        <div class="container" id=1>
+            <div class="content">
+                <h1>Title</h1>
+            </div>
+            <div class="right-arrow" onclick="next_page(1)">
+                <div class="hovicon effect-4 sub-b">
+                    &gt;
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="container hidden" id=2>
-        
+        <div class="container hidden" id=2>
+            
 
-        <div class="content">
+            <div class="content">
 
-            <h2>Sub Title 1</h2>
-        <p>Code block example</p>
-        <pre><code>echo foo
+                <h2>Sub Title 1</h2>
+            <p>Code block example</p>
+            <pre><code>echo foo
 x=3
 y=6
 echo $(($x+$y))</code></pre>
-        <h3>SubSubTitle 11111111111111</h3>
-        <p>brabra</p>
-        <h3>SubSubTitle 2</h3>
-        <h4>h4 example</h4>
-        <p>brabra</p>
-        </div>
-
-        <div class="left-arrow" onclick="previous_page(2)">
-            <div class="hovicon effect-4 sub-b">
-                &lt;
-            </div>
-        </div>
-        <div class="right-arrow" onclick="next_page(2)">
-            <div class="hovicon effect-4 sub-b">
-                &gt;
-            </div>
-        </div>
-    </div>
-
-    <div class="container hidden" id=3>
-        <div class="content">
-            <h2>Sub Title 2</h2>
-            <p>What kind of features do we want?</p>
-            <h3>SubSubTitle 2-1</h3>
+            <h3>SubSubTitle 11111111111111</h3>
             <p>brabra</p>
-            <ul>
-                <li>kotlin</li>
-                <li>python</li>
-                <li>go</li>
-            </ul>
-        </div>
-        <div class="left-arrow" onclick="previous_page(3)">
-            <div class="hovicon effect-4 sub-b">
-                &lt;
+            <h3>SubSubTitle 2</h3>
+            <h4>h4 example</h4>
+            <p>brabra</p>
             </div>
-        </div>
-        <div class="right-arrow" onclick="next_page(3)">
-            <div class="hovicon effect-4 sub-b">
-                &gt;
-            </div>
-        </div>
-    </div>
 
-    <div class="container hidden" id=4>
-        <div class="content">
-            <h2>SubTitle 2-2</h2>
-            <h3>Ranking</h3>
-            <ol>
-                <li>kotlin</li>
-                <li>python</li>
-                <li>go</li>
-            </ol>
-        </div>
-        <div class="left-arrow" onclick="previous_page(4)">
-            <div class="hovicon effect-4 sub-b">
-                &lt;
+            <div class="left-arrow" onclick="previous_page(2)">
+                <div class="hovicon effect-4 sub-b">
+                    &lt;
+                </div>
+            </div>
+            <div class="right-arrow" onclick="next_page(2)">
+                <div class="hovicon effect-4 sub-b">
+                    &gt;
+                </div>
             </div>
         </div>
-        <div class="right-arrow" onclick="next_page(4)">
-            <div class="hovicon effect-4 sub-b">
-                &gt;
-            </div>
-        </div>
-    </div>
 
-    <div class="container hidden" id=5>
-        <div class="content">
-            <h2>Routine</h2>
-            <div class="checkbox">
-                <input type="checkbox" id="test" />
-                <label for="test">Wake up</label><br />
+        <div class="container hidden" id=3>
+            <div class="content">
+                <h2>Sub Title 2</h2>
+                <p>What kind of features do we want?</p>
+                <h3>SubSubTitle 2-1</h3>
+                <p>brabra</p>
+                <ul>
+                    <li>kotlin</li>
+                    <li>python</li>
+                    <li>go</li>
+                </ul>
             </div>
-            <div class="checkbox">
-                <input type="checkbox" id="test" />
-                <label for="test">Take a shower</label><br />    
+            <div class="left-arrow" onclick="previous_page(3)">
+                <div class="hovicon effect-4 sub-b">
+                    &lt;
+                </div>
             </div>
-            <div class="checkbox">
-                <input type="checkbox" id="test" />
-                <label for="test">Die (Work)</label><br />            
-            </div>
-        </div>
-        <div class="left-arrow" onclick="previous_page(5)">
-            <div class="hovicon effect-4 sub-b">
-                &lt;
-            </div>
-        </div>
-        <div class="right-arrow" onclick="next_page(5)">
-            <div class="hovicon effect-4 sub-b">
-                &gt;
+            <div class="right-arrow" onclick="next_page(3)">
+                <div class="hovicon effect-4 sub-b">
+                    &gt;
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Last page -->
-    <div class="container hidden" id=6>
-        <div class="content">
-            <h1>
-                Thank you !
-            </h1>
+        <div class="container hidden" id=4>
+            <div class="content">
+                <h2>SubTitle 2-2</h2>
+                <h3>Ranking</h3>
+                <ol>
+                    <li>kotlin</li>
+                    <li>python</li>
+                    <li>go</li>
+                </ol>
+            </div>
+            <div class="left-arrow" onclick="previous_page(4)">
+                <div class="hovicon effect-4 sub-b">
+                    &lt;
+                </div>
+            </div>
+            <div class="right-arrow" onclick="next_page(4)">
+                <div class="hovicon effect-4 sub-b">
+                    &gt;
+                </div>
+            </div>
         </div>
-        <div class="left-arrow" onclick="previous_page(6)">
-            <div class="hovicon effect-4 sub-b">
-                &lt;
+
+        <div class="container hidden" id=5>
+            <div class="content">
+                <h2>Routine</h2>
+                <div class="checkbox">
+                    <input type="checkbox" id="test" />
+                    <label for="test">Wake up</label><br />
+                </div>
+                <div class="checkbox">
+                    <input type="checkbox" id="test" />
+                    <label for="test">Take a shower</label><br />    
+                </div>
+                <div class="checkbox">
+                    <input type="checkbox" id="test" />
+                    <label for="test">Die (Work)</label><br />            
+                </div>
+            </div>
+            <div class="left-arrow" onclick="previous_page(5)">
+                <div class="hovicon effect-4 sub-b">
+                    &lt;
+                </div>
+            </div>
+            <div class="right-arrow" onclick="next_page(5)">
+                <div class="hovicon effect-4 sub-b">
+                    &gt;
+                </div>
+            </div>
+        </div>
+
+        <!-- Last page -->
+        <div class="container hidden" id=6>
+            <div class="content">
+                <h1>
+                    Thank you !
+                </h1>
+            </div>
+            <div class="left-arrow" onclick="previous_page(6)">
+                <div class="hovicon effect-4 sub-b">
+                    &lt;
+                </div>
             </div>
         </div>
     </div>
