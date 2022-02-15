@@ -27,10 +27,10 @@
         }
         // Resize the slide size according to the aspect ratio
         function resizeWindow(){
-            const windowWidth = window.outerWidth;
-            const windowHeight = window.outerHeight;
+            const windowWidth = document.documentElement.clientWidth;
+            const windowHeight = document.documentElement.clientHeight;
             const elms = document.getElementsByClassName("container");
-            for (const elm in elms) {
+            for (const elm of elms) {
                 if (windowHeight > RATIO_VER * windowWidth / RATIO_HOR) {
                     elm.style.width = windowWidth + "px";
                     elm.style.height = RATIO_VER*windowWidth/RATIO_HOR + "px";
@@ -39,6 +39,20 @@
                     elm.style.height = windowHeight + "px";
                 }
             }
+            // Change font size according to the slide width (NOT window width)
+            const boss = document.getElementsByTagName('html')[0];
+            const widthWithPx = elms[0].style.width;
+            const width = widthWithPx.slice(0, widthWithPx.length-2);
+            let fontSize = 18   // Default Font Size
+            if (768 < width && width < 1200) {
+                console.log('h');
+                fontSize = 12;
+            } else if (480 < width && width < 768) {
+                fontSize = 9;
+            } else if (width < 480) {
+                fontSize = 8;
+            }
+            boss.style.fontSize = fontSize + "px";
         }
         // CHECK: Is this too busy?
         window.addEventListener("resize", resizeWindow);
@@ -85,23 +99,23 @@
             font-size: 4rem;
             margin-top: 1.5rem;
             margin-bottom: 0.5rem;
-            width: 50vw;
+            width: 50%;
         }
         h3 {
             font-size: 3rem;
             margin-top: 1.0rem;
             margin-bottom: 0.4rem;
-            width: 50vw;
+            width: 50%;
         }
         h4 {
             font-size: 2rem;
             margin-top: 0.8rem;
             margin-bottom: 0.4rem;
-            width: 48vw;
+            width: 48%;
         }
         p {
             font-size: 2rem;
-            width: 45vw;
+            width: 45%;
         }
         pre {
             font-size: 1.4rem;
@@ -114,16 +128,16 @@
         }
         li {
             font-size: 2rem;
-            width: 45vw;
+            width: 45%;
         }
         .checkbox {
             font-size: 2rem;
-            width: 45vw;
+            width: 45%;
         }
 
         .content {
             position: relative;
-            width: fit-content;
+            width: 100%;
             height: 100%;
             margin: auto;
             display: flex;
@@ -148,8 +162,8 @@
         /* Effect 4 */
         .hovicon {
             display: inline-block;
-            font-size: 4vw;
-            line-height: 200%;
+            font-size: 4rem;
+            line-height: 150%;
             cursor: pointer;
             margin: auto;
             width: 100%;
