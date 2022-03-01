@@ -6,7 +6,7 @@
 # Usage:
 #   bash main.sh <MARKDOWN_FILE_NAME>
 
-PROGRAM=`basename $0`
+PROGRAM=$(basename "$0")
 
 # ===== print usage =====
 function print_usage() {
@@ -19,7 +19,7 @@ function print_usage() {
 usage_and_exit()
 {
     print_usage
-    exit $1
+    exit "$1"
 }
 
 is_slide=false
@@ -40,7 +40,7 @@ for i in "$@"; do
         usage_and_exit 1
         ;;
     *)
-        if [[ ! -z "$1" ]] && [[ -f "$1" ]]; then
+        if [[ -n "$1" ]] && [[ -f "$1" ]]; then
             FILE="$1"
             shift 1
         fi
@@ -75,7 +75,7 @@ function init_output_html() {
 # usage: create_tag_one_block tag_name content
 function create_tag_one_block() {
     if [[ "$2" =~ (.*)\[(.*)\]\((.*)\) ]]; then
-        echo "<$1>`create_a_tag ${BASH_REMATCH[2]} ${BASH_REMATCH[3]}`</$1>" >> "$OUTPUT_PATH"
+        echo "<$1>$(create_a_tag "${BASH_REMATCH[2]}" "${BASH_REMATCH[3]}")</$1>" >> "$OUTPUT_PATH"
     else
         echo "<$1>$2</$1>" >> "$OUTPUT_PATH"
     fi
@@ -85,12 +85,12 @@ function create_a_tag() {
     echo "<a href=\"$2\">$1</a>"
 }
 function init_slide_one_page() {
-    start_container $1
+    start_container "$1"
     # left arrow
     if [[ "$1" != 1 ]]; then
-        create_left_arrow $1
+        create_left_arrow "$1"
     fi
-    create_right_arrow $1
+    create_right_arrow "$1"
     start_content
 }
 function start_container() {
@@ -101,31 +101,37 @@ function start_container() {
     fi
 }
 function create_left_arrow() {
-    echo "<div class='left-arrow' onclick='previous_page($1)'>" >> "$OUTPUT_PATH"
-    echo '<div class="hovicon effect-4 sub-b">' >> "$OUTPUT_PATH"
-    echo '&lt;' >> "$OUTPUT_PATH"
-    echo '</div>' >> "$OUTPUT_PATH"
-    echo '</div>' >> "$OUTPUT_PATH"
+    {
+        echo "<div class='left-arrow' onclick='previous_page($1)'>"
+        echo '<div class="hovicon effect-4 sub-b">'
+        echo '&lt;'
+        echo '</div>'
+        echo '</div>'
+    } >> "$OUTPUT_PATH"
 }
 function create_right_arrow() {
-    echo "<div class='right-arrow' onclick='next_page($1)'>" >> "$OUTPUT_PATH"
-    echo '<div class="hovicon effect-4 sub-b">' >> "$OUTPUT_PATH"
-    echo '&gt;' >> "$OUTPUT_PATH"
-    echo '</div>' >> "$OUTPUT_PATH"
-    echo '</div>' >> "$OUTPUT_PATH"
+    {
+        echo "<div class='right-arrow' onclick='next_page($1)'>"
+        echo '<div class="hovicon effect-4 sub-b">'
+        echo '&gt;'
+        echo '</div>'
+        echo '</div>'
+    } >> "$OUTPUT_PATH"
 }
 function start_content() {
     echo '<div class="content">' >> "$OUTPUT_PATH"
 }
 
 function close_slide_one_page() {
-    echo '</div>' >> "$OUTPUT_PATH"
-    echo '</div>' >> "$OUTPUT_PATH"
+    {
+        echo '</div>'
+        echo '</div>'
+    } >> "$OUTPUT_PATH"
 }
 function create_closing_slide() {
-    start_container $(($slide_num + 1))
+    start_container "$(("$slide_num" + 1))"
     # only left arrow
-    create_left_arrow $(($slide_num + 1))
+    create_left_arrow "$(("$slide_num" + 1))"
     start_content
     create_tag_one_block "h1" "Thank you!"
     close_slide_one_page
@@ -147,7 +153,6 @@ if [ ! -f "$FILE" ]; then
     print_error_and_usage_and_exit "File $FILE doesn't exists"
 fi
 
-found_title=false
 is_in_code_block=false
 is_in_bullets=false
 bullets_type="ul"
@@ -157,9 +162,9 @@ slide_num=0
 # parse markdown file
 # ======================
 line_count=0
-while read line
+while read -r line
 do
-    line_count=$(($line_count + 1))
+    line_count="$(("$line_count" + 1))"
 
     # ========== code block ==========
     ## === Check if the line is related to a code block ===
@@ -184,7 +189,7 @@ do
             echo "</pre></code>" >> "$OUTPUT_PATH"
         fi
     elif "${is_in_code_block}"; then
-        echo $line >> "$OUTPUT_PATH"
+        echo "$line" >> "$OUTPUT_PATH"
     fi
     if "$is_quotes_line" || "$is_in_code_block"; then
         continue
@@ -192,7 +197,7 @@ do
 
     # ========== h-tag ==========
     is_h_line=true
-    h_tag_num=$((`echo "$line" | sed -r "s/^(#*) .*/\1/g" | sed "s/^[^#].*//g" | wc -c` - 1))
+    h_tag_num=$(( $(echo "$line" | sed -r "s/^(#*) .*/\1/g" | sed "s/^[^#].*//g" | wc -c) - 1))
     case "$h_tag_num" in
         0)
             is_h_line=false
@@ -204,7 +209,7 @@ do
                 exit 1
             fi
             # need check file existance??
-            h1=`echo $line | sed "s/^#* //g"`
+            h1="${line/# /}"
             if "$is_slide"; then
                 OUTPUT_PATH="${h1}_slide.html"
             else
@@ -212,15 +217,15 @@ do
             fi
             # Create output html file.
             init_output_html
-            slide_num=$(($slide_num + 1))
+            slide_num="$(("$slide_num" + 1))"
             if "$is_slide"; then
                 init_slide_one_page "$slide_num"
             fi
             create_tag_one_block "h1" "$h1"
             ;;
         2)
-            h2=`echo $line | sed "s/^#* //g"`
-            slide_num=$(($slide_num + 1))
+            h2="${line/## /}"
+            slide_num="$(("$slide_num" + 1))"
             if "$is_slide"; then
                 close_slide_one_page
                 init_slide_one_page $slide_num 
@@ -228,11 +233,11 @@ do
             create_tag_one_block "h2" "$h2"
             ;;
         3)
-            h3=`echo $line | sed "s/^#* //g"`
+            h3="${line/### /}"
             create_tag_one_block "h3" "$h3"
             ;;
         *)
-            h4_or_more=`echo $line | sed "s/^#* //g"`
+            h4_or_more="${line:$h_tag_num}"
             echo "<p style='font-weight:bold'>$h4_or_more</p>" >> "$OUTPUT_PATH"
             ;;
     esac
@@ -247,8 +252,7 @@ do
             echo '<div class="checkbox">' >> "$OUTPUT_PATH"
         fi    
         echo '<input type="checkbox" id="test" />' >> "$OUTPUT_PATH"
-        item=`echo $line | sed "s/^- \[ \] //g"`
-        echo "<label for='test'>${item}</label><br />" >> "$OUTPUT_PATH"
+        echo "<label for='test'>${line/- \[ \] /}</label><br />" >> "$OUTPUT_PATH"
         if "$is_slide"; then
             echo "</div>" >> "$OUTPUT_PATH"
         fi
@@ -256,33 +260,32 @@ do
     elif [[ "$line" =~ ^"- ".* ]]; then
         if "$is_in_bullets"; then
             # already bullets are started
-            create_tag_one_block "li" `echo $line | sed "s/^- //g"`
+            create_tag_one_block "li" "${line/- /}"
             continue
         else
             # start new bullets
             bullets_type=ul
             echo "<$bullets_type>" >> "$OUTPUT_PATH"
-            create_tag_one_block "li" `echo $line | sed "s/^- //g"`
+            create_tag_one_block "li" "${line/- /}"
             is_in_bullets=true
             continue
         fi
     elif [[ "$line" =~ ^[0-9]+." ".* ]]; then
         if "$is_in_bullets"; then
             # already bullets are started
-            create_tag_one_block "li" `echo $line | sed -E "s/^[0-9]+. //g"`
+            create_tag_one_block "li" "${line/[0-9]. /}"
             continue
         else
             # start new bullets
             bullets_type=ol
             echo "<$bullets_type>" >> "$OUTPUT_PATH"
-            create_tag_one_block "li" `echo $line | sed -E "s/^[0-9]+. //g"`
+            create_tag_one_block "li" "${line/[0-9]. /}"
             is_in_bullets=true
             continue
         fi
     fi
 
-    # normal input?
-    create_tag_one_block "p" "$line"
+
 
     # when the line is empty
     if [ -z "$line" ]; then
@@ -291,8 +294,11 @@ do
             echo "</$bullets_type>" >> "$OUTPUT_PATH"
             is_in_bullets=false
         fi
+    else
+        # normal input?
+        create_tag_one_block "p" "$line"
     fi
-done < $FILE
+done < "$FILE"
 
 # ======================
 # post-processing
