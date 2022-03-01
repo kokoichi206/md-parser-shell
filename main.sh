@@ -281,8 +281,7 @@ do
         fi
     fi
 
-    # normal input?
-    create_tag_one_block "p" "$line"
+
 
     # when the line is empty
     if [ -z "$line" ]; then
@@ -291,6 +290,9 @@ do
             echo "</$bullets_type>" >> "$OUTPUT_PATH"
             is_in_bullets=false
         fi
+    else
+        # normal input?
+        create_tag_one_block "p" "$line"
     fi
 done < $FILE
 
