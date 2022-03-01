@@ -74,7 +74,15 @@ function init_output_html() {
 }
 # usage: create_tag_one_block tag_name content
 function create_tag_one_block() {
-    echo "<$1>$2</$1>" >> "$OUTPUT_PATH"
+    if [[ "$2" =~ (.*)\[(.*)\]\((.*)\) ]]; then
+        echo "<$1>`create_a_tag ${BASH_REMATCH[2]} ${BASH_REMATCH[3]}`</$1>" >> "$OUTPUT_PATH"
+    else
+        echo "<$1>$2</$1>" >> "$OUTPUT_PATH"
+    fi
+}
+# Create a-tag $1: title, $2: link
+function create_a_tag() {
+    echo "<a href=\"$2\">$1</a>"
 }
 function init_slide_one_page() {
     start_container $1
