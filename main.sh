@@ -252,29 +252,38 @@ do
         if "$is_slide"; then
             echo "</div>" >> "$OUTPUT_PATH"
         fi
+        continue
     elif [[ "$line" =~ ^"- ".* ]]; then
         if "$is_in_bullets"; then
             # already bullets are started
             create_tag_one_block "li" `echo $line | sed "s/^- //g"`
+            continue
         else
             # start new bullets
             bullets_type=ul
             echo "<$bullets_type>" >> "$OUTPUT_PATH"
             create_tag_one_block "li" `echo $line | sed "s/^- //g"`
             is_in_bullets=true
+            continue
         fi
     elif [[ "$line" =~ ^[0-9]+." ".* ]]; then
         if "$is_in_bullets"; then
             # already bullets are started
             create_tag_one_block "li" `echo $line | sed -E "s/^[0-9]+. //g"`
+            continue
         else
             # start new bullets
             bullets_type=ol
             echo "<$bullets_type>" >> "$OUTPUT_PATH"
             create_tag_one_block "li" `echo $line | sed -E "s/^[0-9]+. //g"`
             is_in_bullets=true
+            continue
         fi
     fi
+
+    # normal input?
+    create_tag_one_block "p" "$line"
+
     # when the line is empty
     if [ -z "$line" ]; then
         if "$is_in_bullets"; then
