@@ -1,0 +1,15 @@
+name: Lint check for main script
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  shellcheck:
+    uses: kokoichi206/plantuml-to-mermaid/.github/workflows/shellcheck.yml@ccf12508801d50adacfccfc9c245f79dcab442ae
