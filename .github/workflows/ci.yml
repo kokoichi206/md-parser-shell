@@ -12,4 +12,4 @@ on:
 
 jobs:
   shellcheck:
-    uses: kokoichi206/plantuml-to-mermaid/.github/workflows/shellcheck.yml@ccf12508801d50adacfccfc9c245f79dcab442ae
+    uses: kokoichi206/plantuml-to-mermaid/.github/workflows/shellcheck.yml@e9eb12c0e83ef542dbee0cb1d925361614b854b1
