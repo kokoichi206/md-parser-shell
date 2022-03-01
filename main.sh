@@ -74,7 +74,15 @@ function init_output_html() {
 }
 # usage: create_tag_one_block tag_name content
 function create_tag_one_block() {
-    echo "<$1>$2</$1>" >> "$OUTPUT_PATH"
+    if [[ "$2" =~ (.*)\[(.*)\]\((.*)\) ]]; then
+        echo "<$1>`create_a_tag ${BASH_REMATCH[2]} ${BASH_REMATCH[3]}`</$1>" >> "$OUTPUT_PATH"
+    else
+        echo "<$1>$2</$1>" >> "$OUTPUT_PATH"
+    fi
+}
+# Create a-tag $1: title, $2: link
+function create_a_tag() {
+    echo "<a href=\"$2\">$1</a>"
 }
 function init_slide_one_page() {
     start_container $1
@@ -244,29 +252,38 @@ do
         if "$is_slide"; then
             echo "</div>" >> "$OUTPUT_PATH"
         fi
+        continue
     elif [[ "$line" =~ ^"- ".* ]]; then
         if "$is_in_bullets"; then
             # already bullets are started
             create_tag_one_block "li" `echo $line | sed "s/^- //g"`
+            continue
         else
             # start new bullets
             bullets_type=ul
             echo "<$bullets_type>" >> "$OUTPUT_PATH"
             create_tag_one_block "li" `echo $line | sed "s/^- //g"`
             is_in_bullets=true
+            continue
         fi
     elif [[ "$line" =~ ^[0-9]+." ".* ]]; then
         if "$is_in_bullets"; then
             # already bullets are started
             create_tag_one_block "li" `echo $line | sed -E "s/^[0-9]+. //g"`
+            continue
         else
             # start new bullets
             bullets_type=ol
             echo "<$bullets_type>" >> "$OUTPUT_PATH"
             create_tag_one_block "li" `echo $line | sed -E "s/^[0-9]+. //g"`
             is_in_bullets=true
+            continue
         fi
     fi
+
+    # normal input?
+    create_tag_one_block "p" "$line"
+
     # when the line is empty
     if [ -z "$line" ]; then
         if "$is_in_bullets"; then
